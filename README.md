@@ -45,6 +45,10 @@ python -m http.server 8123
 
 Potom otevřete <http://localhost:8123>. Hru lze někdy otevřít i přímo přes `index.html`, ale místní server je spolehlivější kvůli načítání assetů.
 
+### Spuštění bez Pythonu
+
+Pokud nechcete instalovat Python, otevřete **`Start Pizzeria on Mars - bez Pythonu.bat`**. Ten spustí hru přímo přes `index.html` v předvoleném prohlížeči. Pokud prohlížeč zobrazí bezpečnostní omezení lokálních souborů, použijte doporučený způsob s Pythonem.
+
 ## Použité technologie
 
 - HTML5
