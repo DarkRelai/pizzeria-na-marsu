@@ -4,6 +4,7 @@
   const T = PM.TILE, A = PM.art, OUT = A.OUT;
   const SOLID = { '#': 1, '=': 1, 'p': 1, 'C': 1, '?': 1 };
   const G = 2100, JUMP = 820, RUN = 275, BOUNCE = 1250, MAXFALL = 950, STOMP = 520;
+  const JUMP_BUFFER = 0.24, COYOTE_TIME = 0.16;
   const CH = 512; // chunk width (logical px)
 
   /* ====================== Level ====================== */
@@ -205,7 +206,9 @@
       const dir = (inp.down('right') ? 1 : 0) - (inp.down('left') ? 1 : 0);
       const spd = p.speedT > 0 ? 1.4 : 1;
       p.inv = Math.max(0, p.inv - dt); p.speedT = Math.max(0, p.speedT - dt); p.drop = Math.max(0, p.drop - dt);
-      if (inp.hit('jump')) p.jumpBuf = 0.13; else p.jumpBuf -= dt;
+      if (inp.hit('jump')) p.jumpBuf = JUMP_BUFFER;
+      else if (inp.down('jump') && p.onGround) p.jumpBuf = Math.max(p.jumpBuf, 0.08);
+      else p.jumpBuf -= dt;
 
       // ride mover
       if (p.ride) { const m = p.ride; moveX(lv, p, m.dx); p.y += m.dy; }
@@ -247,7 +250,7 @@
         const max = RUN * spd;
         p.vx = PM.clamp(p.vx, -max, max);
         // jump
-        p.coyote = p.onGround ? 0.1 : p.coyote - dt;
+        p.coyote = p.onGround ? COYOTE_TIME : p.coyote - dt;
         if (downK && p.onGround && inp.hit('jump') && this.onOneWay()) { p.drop = 0.25; p.jumpBuf = 0; p.y += 2; p.onGround = false; }
         if (p.jumpBuf > 0 && p.coyote > 0) {
           p.vy = -JUMP * (spd > 1 ? 1.07 : 1); p.jumpBuf = 0; p.coyote = 0; p.onGround = false; p.ride = null;
