@@ -1,0 +1,12 @@
+# Operating system files
+Thumbs.db
+Desktop.ini
+
+# Local editor and tool state
+.vscode/
+.idea/
+.claude/
+
+# Python cache
+__pycache__/
+*.pyc
