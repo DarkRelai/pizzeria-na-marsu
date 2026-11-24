@@ -165,21 +165,43 @@ const KEYMAP = {
   back: ['Escape', 'Backspace']
 };
 PM.input = {
-  keys: {}, pressed: {}, virt: {}, virtPressed: {},
+  keys: {}, pressed: {}, virt: {}, virtPressed: {}, jumpQueued: false,
   mouse: { x: -1, y: -1, down: false },
   click: null, anyPressed: false, usingTouch: false, pointers: {},
   down(a) { if (this.virt[a]) return true; const ks = KEYMAP[a]; for (let i = 0; i < ks.length; i++) if (this.keys[ks[i]]) return true; return false; },
-  hit(a) { if (this.virtPressed[a]) return true; const ks = KEYMAP[a]; for (let i = 0; i < ks.length; i++) if (this.pressed[ks[i]]) return true; return false; },
-  endFrame() { this.pressed = {}; this.virtPressed = {}; this.click = null; this.anyPressed = false; }
+  hit(a) {
+    if (this.virtPressed[a]) return true;
+    if (a === 'jump' && this.jumpQueued) return true;
+    const ks = KEYMAP[a]; for (let i = 0; i < ks.length; i++) if (this.pressed[ks[i]]) return true;
+    return false;
+  },
+  endFrame() { this.pressed = {}; this.virtPressed = {}; this.jumpQueued = false; this.click = null; this.anyPressed = false; }
 };
+const KEY_ALIASES = {
+  ' ': 'Space', Spacebar: 'Space',
+  ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', ArrowUp: 'ArrowUp', ArrowDown: 'ArrowDown',
+  a: 'KeyA', A: 'KeyA', d: 'KeyD', D: 'KeyD',
+  w: 'KeyW', W: 'KeyW', s: 'KeyS', S: 'KeyS',
+  z: 'KeyZ', Z: 'KeyZ', j: 'KeyJ', J: 'KeyJ', k: 'KeyK', K: 'KeyK',
+  p: 'KeyP', P: 'KeyP', Escape: 'Escape', Enter: 'Enter', Backspace: 'Backspace'
+};
+const normaliseKeyCode = e => e.code || KEY_ALIASES[e.key] || e.key;
 window.addEventListener('keydown', e => {
-  if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Backspace'].includes(e.code)) e.preventDefault();
-  if (!e.repeat) { PM.input.pressed[e.code] = true; PM.input.anyPressed = true; }
-  PM.input.keys[e.code] = true;
+  const code = normaliseKeyCode(e);
+  if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Backspace'].includes(code)) e.preventDefault();
+  if (!e.repeat) {
+    PM.input.pressed[code] = true;
+    if (KEYMAP.jump.includes(code)) PM.input.jumpQueued = true;
+    PM.input.anyPressed = true;
+  }
+  PM.input.keys[code] = true;
+  if (document.activeElement !== PM.canvas) PM.canvas.focus({ preventScroll: true });
   PM.audio && PM.audio.unlock();
 });
-window.addEventListener('keyup', e => { PM.input.keys[e.code] = false; });
-window.addEventListener('blur', () => { PM.input.keys = {}; PM.input.virt = {}; });
+window.addEventListener('keyup', e => { PM.input.keys[normaliseKeyCode(e)] = false; });
+const clearInput = () => { PM.input.keys = {}; PM.input.virt = {}; PM.input.pressed = {}; PM.input.jumpQueued = false; };
+window.addEventListener('blur', clearInput);
+document.addEventListener('visibilitychange', () => { if (document.hidden) clearInput(); });
 PM.toLogical = function (cx, cy) {
   const v = PM.view;
   return { x: (cx - v.ox) / v.scale, y: (cy - v.oy) / v.scale };
