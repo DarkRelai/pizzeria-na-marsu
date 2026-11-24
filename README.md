@@ -47,7 +47,7 @@ Potom otevřete <http://localhost:8123>. Hru lze někdy otevřít i přímo pře
 
 ### Spuštění bez Pythonu
 
-Pokud nechcete instalovat Python, otevřete **`Start Pizzeria on Mars - bez Pythonu.bat`**. Ten spustí hru přímo přes `index.html` v předvoleném prohlížeči. Pokud prohlížeč zobrazí bezpečnostní omezení lokálních souborů, použijte doporučený způsob s Pythonem.
+Pokud nechcete instalovat Python, otevřete **`Start Pizzeria on Mars - bez Pythonu.bat`**. Ten použije vestavěný PowerShell ve Windows jako malý místní server a otevře hru na `http://127.0.0.1:8123/`. Není potřeba žádná další instalace.
 
 ## Použité technologie
 
